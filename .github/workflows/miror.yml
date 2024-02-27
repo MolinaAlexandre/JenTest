@@ -1,0 +1,38 @@
+name: Mirror Repository to Organization
+
+on: [push]
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v2
+      
+      # Assurez-vous d'avoir généré un PAT (Personal Access Token) avec les permissions nécessaires
+      # et de l'avoir stocké dans les secrets de votre dépôt source sous le nom GH_PAT
+      - name: Mirror to target repository
+        env:
+          GH_PAT: ${{ secrets.GH_PAT }}
+        run: |
+          # Vérifie si le dépôt miroir existe dans l'organisation cible
+          # Remplacez <Organization> par le nom de votre organisation et <Repo> par le nom du dépôt miroir
+          REPO_EXISTS=$(curl -H "Authorization: token $GH_PAT" https://api.github.com/repos/skead/test | jq .id)
+          if [ "$REPO_EXISTS" == "null" ]; then
+            echo "Le dépôt miroir n'existe pas. Tentative de création..."
+            # Crée le dépôt dans l'organisation cible
+            # Vous devrez adapter cette commande pour correspondre aux besoins spécifiques de création de dépôt.
+            curl -X POST -H "Authorization: token $GH_PAT" https://api.github.com/orgs/skead/test -d '{"name":"test", "private":true}'
+          else
+            echo "Le dépôt miroir existe déjà. Continuation..."
+          fi
+
+          # Configure git avec votre utilisateur et email
+          git config --global user.email "alexandre.molina92@gmail.com"
+          git config --global user.name "Molina Alexandre"
+
+          # Ajoute le dépôt miroir comme un remote s'il n'existe pas déjà
+          git remote add mirror git@github.com:skead/test.git || true
+
+          # Pousse les modifications vers le dépôt miroir
+          git push --mirror git@github.com:skead/test.git
