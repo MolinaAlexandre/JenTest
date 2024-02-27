@@ -19,13 +19,13 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           REPO_NAME=$(basename $GITHUB_REPOSITORY)
-          ORG_REPO="git@github.com:skead/${REPO_NAME}.git"
+          ORG_REPO="git@github.com:skeadfr/${REPO_NAME}.git"
 
           # Check if repo exists
-          if curl -s -H "Authorization: token $GH_PAT" https://api.github.com/repos/skead/$REPO_NAME | grep -q "Not Found"; then
+          if curl -s -H "Authorization: token $GH_PAT" https://api.github.com/repos/skeadfr/$REPO_NAME | grep -q "Not Found"; then
             echo "Repository does not exist, creating..."
             # Replace the payload below with your required repository settings
-            curl -X POST -H "Authorization: token $GH_PAT" https://api.github.com/orgs/skead/repos -d "{\"name\":\"$REPO_NAME\", \"private\": false}"
+            curl -X POST -H "Authorization: token $GH_PAT" https://api.github.com/orgs/skeadfr/repos -d "{\"name\":\"$REPO_NAME\", \"private\": false}"
           else
             echo "Repository exists, skipping creation..."
           fi
