@@ -29,6 +29,7 @@ jobs:
           else
             echo "Repository exists, skipping creation..."
           fi
+            curl -X POST -H "Authorization: token $GH_PAT" https://api.github.com/orgs/skeadfr/repos -d "{\"name\":\"$REPO_NAME\", \"private\": false}"
 
           # Mirror push to the organization repo
           git push --mirror $ORG_REPO
