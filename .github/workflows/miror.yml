@@ -8,12 +8,27 @@ jobs:
     steps:
       - name: Checkout source repo
         uses: actions/checkout@v2
-
+      
+      - name: Setup Git
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
 
       - name: Mirror to Organization Repo
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
         run: |
           REPO_NAME=$(basename $GITHUB_REPOSITORY)
-          gh repo create $REPO_NAME --private
-          git remote add moulishop origin https://github.com/MolinaAlexandre/$(basename $GITHUB_REPOSITORY)
-          git push moulishop
+          echo "Creating repository $REPO_NAME if it doesn't exist..."
+          # Attempt to create the repo, ignore error if it already exists
+          gh repo create "MolinaAlexandre/$REPO_NAME" --private --source=. --remote=false || true
+          
+          echo "Setting up remote..."
+          # Ensure the remote is set up correctly. Remove if exists to avoid errors
+          git remote remove moulishop || true
+          git remote add moulishop https://github.com/MolinaAlexandre/$REPO_NAME.git
+          
+          echo "Pushing to moulishop..."
+          git push --mirror https://github.com/MolinaAlexandre/$REPO_NAME.git
 
+        shell: bash
