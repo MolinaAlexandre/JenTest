@@ -19,17 +19,7 @@ jobs:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           REPO_NAME=$(basename $GITHUB_REPOSITORY)
-          ORG_REPO="git@github.com:skeadfr/${REPO_NAME}.git"
+          gh repo create $REPO_NAME --private
+          git remote add moulishop origin https://github.com/MolinaAlexandre/$(basename $GITHUB_REPOSITORY)
+          git push moulishop
 
-          # Check if repo exists
-          if curl -s -H "Authorization: token $GH_PAT" https://api.github.com/repos/skeadfr/$REPO_NAME | grep -q "Not Found"; then
-            echo "Repository does not exist, creating..."
-            # Replace the payload below with your required repository settings
-            curl -X POST -H "Authorization: token $GH_PAT" https://api.github.com/orgs/skeadfr/repos -d "{\"name\":\"$REPO_NAME\", \"private\": false}"
-          else
-            echo "Repository exists, skipping creation..."
-          fi
-            curl -X POST -H "Authorization: token $GH_PAT" https://api.github.com/orgs/skeadfr/repos -d "{\"name\":\"$REPO_NAME\", \"private\": false}"
-
-          # Mirror push to the organization repo
-          git push --mirror $ORG_REPO
